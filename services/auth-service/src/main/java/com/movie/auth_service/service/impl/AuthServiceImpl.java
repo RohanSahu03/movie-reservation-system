@@ -9,6 +9,7 @@ import com.movie.auth_service.entity.User;
 import com.movie.auth_service.entity.UserRole;
 import com.movie.auth_service.enums.RoleType;
 import com.movie.auth_service.exception.UserAlreadyExistsException;
+import com.movie.common.exception.ResourceNotFoundException;
 import com.movie.auth_service.mapper.UserMapper;
 import com.movie.auth_service.repository.RoleRepository;
 import com.movie.auth_service.repository.UserRepository;

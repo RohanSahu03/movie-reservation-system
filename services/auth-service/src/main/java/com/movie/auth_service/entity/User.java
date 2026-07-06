@@ -2,6 +2,8 @@ package com.movie.auth_service.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(
@@ -43,4 +45,8 @@ public class User extends BaseEntity {
     @Builder.Default
     @Column(nullable = false)
     private Boolean emailVerified = false;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @Builder.Default
+    private Set<UserRole> userRoles = new HashSet<>();
 }

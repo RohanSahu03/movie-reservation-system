@@ -20,6 +20,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.movie.auth_service.security.JwtService;
+import com.movie.auth_service.security.UserPrincipal;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +36,8 @@ public class AuthServiceImpl implements AuthService {
     private final UserRoleRepository userRoleRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     @Override
     public UserResponse register(RegisterRequest request) {
@@ -75,7 +81,42 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponse login(LoginRequest request) {
 
-        throw new UnsupportedOperationException("Login API is not implemented yet");
+        log.info("Login request received for email : {}", request.getEmail());
 
+        // Authenticate user
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
+
+        // Fetch user from database
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "User not found with email : " + request.getEmail()));
+
+        // Generate JWT
+        UserPrincipal userPrincipal = new UserPrincipal(user);
+
+        String accessToken = jwtService.generateAccessToken(userPrincipal);
+
+        // Get first role
+        String role = user.getUserRoles()
+                .stream()
+                .findFirst()
+                .map(userRole -> userRole.getRole().getName())
+                .orElse("CUSTOMER");
+
+        log.info("User logged in successfully : {}", request.getEmail());
+
+        return AuthResponse.builder()
+                .accessToken(accessToken)
+                .tokenType("Bearer")
+                .expiresIn(900000L)
+                .email(user.getEmail())
+                .role(role)
+                .build();
     }
 }

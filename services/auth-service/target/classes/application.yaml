@@ -28,3 +28,7 @@ management:
     web:
       exposure:
         include: health,info
+
+jwt:
+  secret: 6X5bq1Qm9Rk8Vz3Lp2Nt7Hs4YwEaFdGcJjKhLmNpQrStUvWxYz1234567890AbCd
+  access-token-expiration: 900000

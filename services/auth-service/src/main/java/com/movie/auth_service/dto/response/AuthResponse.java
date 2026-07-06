@@ -1,18 +1,21 @@
 package com.movie.auth_service.dto.response;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
 public class AuthResponse {
 
     private String accessToken;
 
-    private String refreshToken;
+    private String tokenType;
 
-    private UserResponse user;
+    private Long expiresIn;
 
+    private String email;
+
+    private String role;
 }

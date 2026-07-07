@@ -2,6 +2,7 @@ package com.movie.auth_service.exception;
 
 import com.movie.common.dto.ApiResponse;
 import com.movie.common.exception.BadRequestException;
+import com.movie.common.exception.InvalidTokenException;
 import com.movie.common.exception.ResourceNotFoundException;
 import com.movie.common.exception.UnauthorizedException;
 import jakarta.validation.ConstraintViolationException;
@@ -67,5 +68,20 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.failure("Something went wrong"));
+    }
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidTokenException(
+            InvalidTokenException ex) {
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResponse.failure(ex.getMessage()));
+    }
+
+    @ExceptionHandler(EmailAlreadyVerifiedException.class)
+    public ResponseEntity<ApiResponse<Object>> handleEmailAlreadyVerified(
+            EmailAlreadyVerifiedException ex) {
+
+        return ResponseEntity.badRequest()
+                .body(ApiResponse.failure(ex.getMessage()));
     }
 }

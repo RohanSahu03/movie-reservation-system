@@ -5,6 +5,7 @@ D:\java\movie-reservation-system\common-library\src\main\java\com\movie\common\d
 D:\java\movie-reservation-system\common-library\src\main\java\com\movie\common\enums\ErrorCode.java
 D:\java\movie-reservation-system\common-library\src\main\java\com\movie\common\exception\ApiException.java
 D:\java\movie-reservation-system\common-library\src\main\java\com\movie\common\exception\BadRequestException.java
+D:\java\movie-reservation-system\common-library\src\main\java\com\movie\common\exception\InvalidTokenException.java
 D:\java\movie-reservation-system\common-library\src\main\java\com\movie\common\exception\ResourceNotFoundException.java
 D:\java\movie-reservation-system\common-library\src\main\java\com\movie\common\exception\UnauthorizedException.java
 D:\java\movie-reservation-system\common-library\src\main\java\com\movie\common\logging\LogConstants.java

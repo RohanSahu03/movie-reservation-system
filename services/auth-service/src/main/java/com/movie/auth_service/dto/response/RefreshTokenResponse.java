@@ -7,18 +7,13 @@ import lombok.Getter;
 @Getter
 @Builder
 @AllArgsConstructor
-public class AuthResponse {
+public class RefreshTokenResponse {
 
     private String accessToken;
 
-    private String refreshToken;
-
-    @Builder.Default
-    private String tokenType = "Bearer";
+    private String tokenType;
 
     private Long expiresIn;
 
-    private String email;
-
-    private String role;
+    private String refreshToken;
 }

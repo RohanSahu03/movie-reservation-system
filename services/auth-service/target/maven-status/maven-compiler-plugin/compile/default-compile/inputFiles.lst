@@ -4,10 +4,14 @@ D:\java\movie-reservation-system\services\auth-service\src\main\java\com\movie\a
 D:\java\movie-reservation-system\services\auth-service\src\main\java\com\movie\auth_service\controller\AuthController.java
 D:\java\movie-reservation-system\services\auth-service\src\main\java\com\movie\auth_service\controller\TestController.java
 D:\java\movie-reservation-system\services\auth-service\src\main\java\com\movie\auth_service\dto\request\LoginRequest.java
+D:\java\movie-reservation-system\services\auth-service\src\main\java\com\movie\auth_service\dto\request\LogoutRequest.java
+D:\java\movie-reservation-system\services\auth-service\src\main\java\com\movie\auth_service\dto\request\RefreshTokenRequest.java
 D:\java\movie-reservation-system\services\auth-service\src\main\java\com\movie\auth_service\dto\request\RegisterRequest.java
 D:\java\movie-reservation-system\services\auth-service\src\main\java\com\movie\auth_service\dto\response\AuthResponse.java
+D:\java\movie-reservation-system\services\auth-service\src\main\java\com\movie\auth_service\dto\response\RefreshTokenResponse.java
 D:\java\movie-reservation-system\services\auth-service\src\main\java\com\movie\auth_service\dto\response\UserResponse.java
 D:\java\movie-reservation-system\services\auth-service\src\main\java\com\movie\auth_service\entity\BaseEntity.java
+D:\java\movie-reservation-system\services\auth-service\src\main\java\com\movie\auth_service\entity\EmailVerificationToken.java
 D:\java\movie-reservation-system\services\auth-service\src\main\java\com\movie\auth_service\entity\RefreshToken.java
 D:\java\movie-reservation-system\services\auth-service\src\main\java\com\movie\auth_service\entity\Role.java
 D:\java\movie-reservation-system\services\auth-service\src\main\java\com\movie\auth_service\entity\User.java
@@ -16,6 +20,7 @@ D:\java\movie-reservation-system\services\auth-service\src\main\java\com\movie\a
 D:\java\movie-reservation-system\services\auth-service\src\main\java\com\movie\auth_service\exception\GlobalExceptionHandler.java
 D:\java\movie-reservation-system\services\auth-service\src\main\java\com\movie\auth_service\exception\UserAlreadyExistsException.java
 D:\java\movie-reservation-system\services\auth-service\src\main\java\com\movie\auth_service\mapper\UserMapper.java
+D:\java\movie-reservation-system\services\auth-service\src\main\java\com\movie\auth_service\repository\EmailVerificationTokenRepository.java
 D:\java\movie-reservation-system\services\auth-service\src\main\java\com\movie\auth_service\repository\RefreshTokenRepository.java
 D:\java\movie-reservation-system\services\auth-service\src\main\java\com\movie\auth_service\repository\RoleRepository.java
 D:\java\movie-reservation-system\services\auth-service\src\main\java\com\movie\auth_service\repository\UserRepository.java
@@ -28,3 +33,5 @@ D:\java\movie-reservation-system\services\auth-service\src\main\java\com\movie\a
 D:\java\movie-reservation-system\services\auth-service\src\main\java\com\movie\auth_service\security\UserPrincipal.java
 D:\java\movie-reservation-system\services\auth-service\src\main\java\com\movie\auth_service\service\AuthService.java
 D:\java\movie-reservation-system\services\auth-service\src\main\java\com\movie\auth_service\service\impl\AuthServiceImpl.java
+D:\java\movie-reservation-system\services\auth-service\src\main\java\com\movie\auth_service\service\impl\RefreshTokenServiceImpl.java
+D:\java\movie-reservation-system\services\auth-service\src\main\java\com\movie\auth_service\service\RefreshTokenService.java

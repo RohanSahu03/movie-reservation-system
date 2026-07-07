@@ -15,6 +15,19 @@ spring:
       hibernate:
         format_sql: true
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: sahurohankumar47@gmail.com
+    password: kavphnrcgpnzxjlh
+
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 server:
   port: 8082
 
@@ -32,3 +45,15 @@ management:
 jwt:
   secret: 6X5bq1Qm9Rk8Vz3Lp2Nt7Hs4YwEaFdGcJjKhLmNpQrStUvWxYz1234567890AbCd
   access-token-expiration: 900000
+  refresh-token-expiration: 604800000
+
+
+email:
+  verification:
+    expiration: 30
+
+app:
+  frontend-url: http://localhost:3000
+
+password-reset:
+  expiration: 15

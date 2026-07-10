@@ -1,5 +1,6 @@
 package com.movie.auth_service.security;
 
+import com.movie.auth_service.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -27,8 +28,27 @@ public class JwtService {
     /**
      * Generate Access Token
      */
-    public String generateAccessToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails, accessTokenExpiration);
+    public String generateAccessToken(User user) {
+
+        Map<String, Object> claims = new HashMap<>();
+
+        claims.put("userId", user.getId());
+
+        claims.put("email", user.getEmail());
+
+        String role = user.getUserRoles()
+                .stream()
+                .findFirst()
+                .map(userRole -> userRole.getRole().getName())
+                .orElse("CUSTOMER");
+
+        claims.put("role", role);
+
+        return generateToken(
+                claims,
+                new UserPrincipal(user),
+                accessTokenExpiration
+        );
     }
 
     /**

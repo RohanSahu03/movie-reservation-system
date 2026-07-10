@@ -120,9 +120,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         // Generate Access Token
-        UserPrincipal userPrincipal = new UserPrincipal(user);
-
-        String accessToken = jwtService.generateAccessToken(userPrincipal);
+        String accessToken = jwtService.generateAccessToken(user);
 
         // Generate Refresh Token
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
@@ -157,9 +155,7 @@ public class AuthServiceImpl implements AuthService {
 
         User user = refreshToken.getUser();
 
-        UserPrincipal userPrincipal = new UserPrincipal(user);
-
-        String accessToken = jwtService.generateAccessToken(userPrincipal);
+        String accessToken = jwtService.generateAccessToken(user);
 
         log.info("Refresh token rotated for user: {}", user.getEmail());
 

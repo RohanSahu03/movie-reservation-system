@@ -1,5 +1,6 @@
 D:\java\movie-reservation-system\common-library\src\main\java\com\movie\common\constants\AppConstants.java
 D:\java\movie-reservation-system\common-library\src\main\java\com\movie\common\constants\HeaderConstants.java
+D:\java\movie-reservation-system\common-library\src\main\java\com\movie\common\constants\LoggingConstants.java
 D:\java\movie-reservation-system\common-library\src\main\java\com\movie\common\dto\ApiResponse.java
 D:\java\movie-reservation-system\common-library\src\main\java\com\movie\common\dto\ErrorResponse.java
 D:\java\movie-reservation-system\common-library\src\main\java\com\movie\common\enums\ErrorCode.java

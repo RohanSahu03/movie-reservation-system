@@ -69,7 +69,7 @@ jwt:
 
 logging:
   level:
-    org.springframework.cloud.gateway: DEBUG
+    org.springframework.cloud.gateway: TRACE
     org.springframework.web.reactive: DEBUG
     reactor.netty.http.client: DEBUG
     org.springframework.cloud.loadbalancer: DEBUG

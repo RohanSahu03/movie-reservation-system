@@ -18,10 +18,7 @@ public class CreateScreenRequest {
 
     @NotNull
     private ScreenType screenType;
-
-    @NotNull
-    @Min(1)
-    private Integer capacity;
+    
 
     @NotNull
     private Long theaterId;

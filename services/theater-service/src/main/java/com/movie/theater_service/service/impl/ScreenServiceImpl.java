@@ -41,36 +41,31 @@ public class ScreenServiceImpl implements ScreenService {
             Long theaterId,
             CreateScreenRequest request) {
 
-
         Theater theater = theaterRepository.findById(theaterId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
-                                "Theater not found with id : "
-                                        + theaterId));
+                                "Theater not found with id : " + theaterId));
 
+        if (!theater.getActive()) {
+            throw new IllegalStateException("Theater is inactive.");
+        }
 
         Screen screen = Screen.builder()
                 .name(request.getName())
                 .screenType(request.getScreenType())
-                .capacity(0)
+                .capacity(0)          // Initial capacity. Updated after seat generation.
+                .active(true)
                 .theater(theater)
                 .build();
 
+        Screen savedScreen = screenRepository.save(screen);
 
-        Screen savedScreen =
-                screenRepository.save(screen);
-
-
-        log.info(
-                "Screen created successfully. screenId={}, theaterId={}",
+        log.info("Screen created successfully. screenId={}, theaterId={}",
                 savedScreen.getId(),
-                theaterId
-        );
-
+                theaterId);
 
         return screenMapper.toResponse(savedScreen);
     }
-
 
 
     @Override
@@ -78,44 +73,32 @@ public class ScreenServiceImpl implements ScreenService {
             Long screenId,
             UpdateScreenRequest request) {
 
+        Screen screen = screenRepository.findById(screenId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Screen not found with id : " + screenId));
 
-        Screen screen =
-                screenRepository.findById(screenId)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Screen not found with id : "
-                                                + screenId));
-
-
-        if(request.getName() != null){
-
-            screen.setName(
-                    request.getName()
-            );
+        if (!screen.getActive()) {
+            throw new IllegalStateException("Screen is inactive.");
         }
 
-
-        if(request.getScreenType() != null){
-
-            screen.setScreenType(
-                    request.getScreenType()
-            );
+        if (request.getName() != null) {
+            screen.setName(request.getName());
         }
 
+        if (request.getScreenType() != null) {
+            screen.setScreenType(request.getScreenType());
+        }
 
-        Screen updatedScreen =
-                screenRepository.save(screen);
+        // DO NOT UPDATE CAPACITY HERE
+        // Capacity will be updated automatically when seats are generated.
 
+        Screen updatedScreen = screenRepository.save(screen);
 
-        log.info(
-                "Screen updated successfully. screenId={}",
-                screenId
-        );
-
+        log.info("Screen updated successfully. screenId={}", screenId);
 
         return screenMapper.toResponse(updatedScreen);
     }
-
 
 
     @Override

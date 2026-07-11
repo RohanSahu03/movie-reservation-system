@@ -40,4 +40,8 @@ public class Screen extends BaseEntity {
     @Builder.Default
     private Set<Seat> seats = new HashSet<>();
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean active = true;
+
 }

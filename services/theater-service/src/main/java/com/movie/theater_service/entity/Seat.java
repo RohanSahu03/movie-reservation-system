@@ -50,6 +50,10 @@ public class Seat extends BaseEntity {
     @Column(nullable = false)
     private Integer seatColumn;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean active = true;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private SeatType seatType;

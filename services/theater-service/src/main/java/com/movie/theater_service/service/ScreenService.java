@@ -1,13 +1,36 @@
 package com.movie.theater_service.service;
 
+import com.movie.theater_service.dto.request.CreateScreenRequest;
+import com.movie.theater_service.dto.request.UpdateScreenRequest;
+import com.movie.theater_service.dto.response.ScreenResponse;
+
+import java.util.List;
+
 public interface ScreenService {
-    ScreenResponse createScreen(CreateScreenRequest request);
 
-    ScreenResponse updateScreen(Long id, UpdateScreenRequest request);
+    ScreenResponse createScreen(
+            Long theaterId,
+            CreateScreenRequest request
+    );
 
-    ScreenResponse getScreen(Long id);
 
-    List<ScreenResponse> getScreensByTheater(Long theaterId);
+    ScreenResponse updateScreen(
+            Long screenId,
+            UpdateScreenRequest request
+    );
 
-    void deleteScreen(Long id);
+
+    ScreenResponse getScreenById(
+            Long screenId
+    );
+
+
+    List<ScreenResponse> getScreensByTheater(
+            Long theaterId
+    );
+
+
+    void deleteScreen(
+            Long screenId
+    );
 }

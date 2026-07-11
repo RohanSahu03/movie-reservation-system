@@ -28,6 +28,21 @@ spring:
               predicates:
                 - Path=/api/v1/movies/**
 
+            - id: theater-service
+              uri: lb://THEATER-SERVICE
+              predicates:
+                - Path=/api/v1/theaters/**
+
+            - id: screen-service
+              uri: lb://THEATER-SERVICE
+              predicates:
+                - Path=/api/v1/screens/**
+
+            - id: seat-service
+              uri: lb://THEATER-SERVICE
+              predicates:
+                - Path=/api/v1/seats/**
+
 server:
   port: 8080
 
@@ -55,5 +70,7 @@ jwt:
 logging:
   level:
     org.springframework.cloud.gateway: DEBUG
-    org.springframework.data.redis: DEBUG
+    org.springframework.web.reactive: DEBUG
+    reactor.netty.http.client: DEBUG
+    org.springframework.cloud.loadbalancer: DEBUG
 

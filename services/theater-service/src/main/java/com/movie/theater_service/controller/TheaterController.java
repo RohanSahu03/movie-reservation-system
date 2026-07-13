@@ -1,5 +1,6 @@
 package com.movie.theater_service.controller;
 
+import com.movie.common.dto.ApiResponse;
 import com.movie.theater_service.dto.request.CreateTheaterRequest;
 import com.movie.theater_service.dto.request.UpdateTheaterRequest;
 import com.movie.theater_service.dto.response.TheaterResponse;
@@ -42,12 +43,17 @@ public class TheaterController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<TheaterResponse> getTheaterById(
+    public ResponseEntity<ApiResponse<TheaterResponse>> getTheaterById(
             @PathVariable Long id) {
 
+        TheaterResponse response =
+                theaterService.getTheaterById(id);
 
         return ResponseEntity.ok(
-                theaterService.getTheaterById(id)
+                ApiResponse.success(
+                        "Theater fetched successfully",
+                        response
+                )
         );
     }
 

@@ -43,6 +43,11 @@ spring:
               predicates:
                 - Path=/api/v1/seats/**
 
+            - id: show-service
+              uri: lb://SHOW-SERVICE
+              predicates:
+                - Path=/api/v1/shows/**
+
 server:
   port: 8080
 

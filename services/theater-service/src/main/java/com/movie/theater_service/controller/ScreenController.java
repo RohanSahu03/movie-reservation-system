@@ -1,5 +1,6 @@
 package com.movie.theater_service.controller;
 
+import com.movie.common.dto.ApiResponse;
 import com.movie.theater_service.dto.request.CreateScreenRequest;
 import com.movie.theater_service.dto.request.UpdateScreenRequest;
 import com.movie.theater_service.dto.response.ScreenResponse;
@@ -40,12 +41,18 @@ public class ScreenController {
         );
     }
 
-    @GetMapping("/{screenId}")
-    public ResponseEntity<ScreenResponse> getScreenById(
-            @PathVariable Long screenId) {
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<ScreenResponse>> getScreenById(
+            @PathVariable Long id) {
+
+        ScreenResponse response =
+                screenService.getScreenById(id);
 
         return ResponseEntity.ok(
-                screenService.getScreenById(screenId)
+                ApiResponse.success(
+                        "Screen fetched successfully",
+                        response
+                )
         );
     }
 

@@ -48,6 +48,11 @@ spring:
               predicates:
                 - Path=/api/v1/shows/**
 
+            - id: booking-service
+              uri: lb://BOOKING-SERVICE
+              predicates:
+                - Path=/api/v1/bookings/**
+
 server:
   port: 8080
 

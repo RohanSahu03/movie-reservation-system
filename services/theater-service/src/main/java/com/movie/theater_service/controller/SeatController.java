@@ -1,5 +1,6 @@
 package com.movie.theater_service.controller;
 
+import com.movie.common.dto.ApiResponse;
 import com.movie.theater_service.dto.request.SeatGenerationRequest;
 import com.movie.theater_service.dto.response.SeatResponse;
 import com.movie.theater_service.service.SeatService;
@@ -30,20 +31,28 @@ public class SeatController {
     }
 
     @GetMapping("/screen/{screenId}")
-    public ResponseEntity<List<SeatResponse>> getSeatsByScreen(
+    public ResponseEntity<ApiResponse<List<SeatResponse>>> getSeatsByScreen(
             @PathVariable Long screenId) {
 
         return ResponseEntity.ok(
-                seatService.getSeatsByScreen(screenId)
+                ApiResponse.success(
+                        "Seats fetched successfully",
+                        seatService.getSeatsByScreen(screenId)
+                )
         );
     }
 
     @GetMapping("/{seatId}")
-    public ResponseEntity<SeatResponse> getSeatById(
+    public ResponseEntity<ApiResponse<SeatResponse>> getSeatById(
             @PathVariable Long seatId) {
 
+        SeatResponse response = seatService.getSeatById(seatId);
+
         return ResponseEntity.ok(
-                seatService.getSeatById(seatId)
+                ApiResponse.success(
+                        "Seat fetched successfully",
+                        response
+                )
         );
     }
 

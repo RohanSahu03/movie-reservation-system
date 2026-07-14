@@ -2,6 +2,11 @@ spring:
   application:
     name: booking-service
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
   datasource:
     url: jdbc:mysql://localhost:3306/booking_service_db
     username: root
@@ -16,6 +21,19 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: FULL
 
 server:
   port: 8086
@@ -37,3 +55,7 @@ management:
   endpoint:
     health:
       show-details: always
+
+logging:
+  level:
+    com.movie.booking_service.client: DEBUG

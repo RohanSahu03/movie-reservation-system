@@ -146,7 +146,7 @@ public class BookingServiceImpl implements BookingService {
                             .paymentStatus(PaymentStatus.PENDING)
                             .totalAmount(totalAmount)
                             .bookingTime(LocalDateTime.now())
-                            .expiresAt(LocalDateTime.now().plusMinutes(5))
+                            .expiresAt(LocalDateTime.now().plusMinutes(1))
                             .bookedSeats(new java.util.HashSet<>())
                             .active(true)
                             .build();
@@ -177,7 +177,7 @@ public class BookingServiceImpl implements BookingService {
             throw e;
         }
     }
-    
+
 
     @Override
     public BookingResponse getBookingById(Long bookingId) {
@@ -258,6 +258,54 @@ public class BookingServiceImpl implements BookingService {
                         );
 
 
+        /*
+         * Only active bookings can be cancelled
+         */
+        if(BookingStatus.CANCELLED.equals(
+                booking.getBookingStatus())) {
+
+            throw new IllegalStateException(
+                    "Booking already cancelled"
+            );
+        }
+
+
+        if(BookingStatus.EXPIRED.equals(
+                booking.getBookingStatus())) {
+
+            throw new IllegalStateException(
+                    "Expired booking cannot be cancelled"
+            );
+        }
+
+
+
+        /*
+         * Release Redis seat locks
+         */
+        booking.getBookedSeats()
+                .forEach(bookedSeat -> {
+
+
+                    seatLockService.unlockSeat(
+                            booking.getShowId(),
+                            bookedSeat.getSeatId()
+                    );
+
+
+                    log.info(
+                            "Released seat lock showId={} seatId={}",
+                            booking.getShowId(),
+                            bookedSeat.getSeatId()
+                    );
+
+                });
+
+
+
+        /*
+         * Update booking status
+         */
         booking.setBookingStatus(
                 BookingStatus.CANCELLED
         );
@@ -269,7 +317,7 @@ public class BookingServiceImpl implements BookingService {
 
 
         log.info(
-                "Booking cancelled id={}",
+                "Booking cancelled successfully id={}",
                 bookingId
         );
     }
@@ -285,6 +333,64 @@ public class BookingServiceImpl implements BookingService {
                 .substring(0,8)
                 .toUpperCase();
 
+    }
+
+    @Override
+    public BookingResponse confirmBooking(Long bookingId) {
+
+
+        Booking booking =
+                bookingRepository.findById(bookingId)
+                        .orElseThrow(
+                                () -> new ResourceNotFoundException(
+                                        "Booking not found"
+                                )
+                        );
+
+
+        /*
+         * Booking must be pending
+         */
+        if(!BookingStatus.PENDING.equals(
+                booking.getBookingStatus())) {
+
+
+            throw new IllegalStateException(
+                    "Only pending booking can be confirmed"
+            );
+        }
+
+
+
+        /*
+         * Confirm booking
+         */
+        booking.setBookingStatus(
+                BookingStatus.CONFIRMED
+        );
+
+
+        booking.setPaymentStatus(
+                PaymentStatus.SUCCESS
+        );
+
+
+
+        Booking saved =
+                bookingRepository.save(
+                        booking
+                );
+
+
+        log.info(
+                "Booking confirmed successfully id={}",
+                saved.getId()
+        );
+
+
+        return bookingMapper.toResponse(
+                saved
+        );
     }
 
 }

@@ -33,4 +33,8 @@ public interface BookingService {
             Long bookingId
     );
 
+    BookingResponse confirmBooking(
+            Long bookingId
+    );
+
 }

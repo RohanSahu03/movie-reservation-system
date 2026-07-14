@@ -90,4 +90,22 @@ public class BookingController {
         );
     }
 
+    @PutMapping("/{bookingId}/confirm")
+    public ResponseEntity<ApiResponse<BookingResponse>> confirmBooking(
+            @PathVariable Long bookingId
+    ){
+
+        BookingResponse response =
+                bookingService.confirmBooking(
+                        bookingId
+                );
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Booking confirmed successfully",
+                        response
+                )
+        );
+    }
+
 }

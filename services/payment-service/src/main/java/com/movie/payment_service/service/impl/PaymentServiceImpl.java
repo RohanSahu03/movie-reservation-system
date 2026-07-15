@@ -9,7 +9,9 @@ import com.movie.payment_service.dto.response.PaymentResponse;
 import com.movie.payment_service.entity.Payment;
 import com.movie.payment_service.enums.BookingStatus;
 import com.movie.payment_service.enums.PaymentStatus;
+import com.movie.payment_service.event.PaymentCompletedEvent;
 import com.movie.payment_service.mapper.PaymentMapper;
+import com.movie.payment_service.producer.PaymentEventProducer;
 import com.movie.payment_service.repository.PaymentRepository;
 import com.movie.payment_service.service.PaymentService;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,6 +34,8 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentMapper paymentMapper;
 
     private final BookingClient bookingClient;
+
+    private final PaymentEventProducer paymentEventProducer;
 
     @Override
     public PaymentResponse createPayment(
@@ -99,6 +104,24 @@ public class PaymentServiceImpl implements PaymentService {
                 "Payment created successfully id={}",
                 saved.getId()
         );
+
+        PaymentCompletedEvent event =
+                PaymentCompletedEvent.builder()
+                        .paymentId(saved.getId())
+                        .bookingId(saved.getBookingId())
+                        .userId(saved.getUserId())
+                        .amount(saved.getAmount())
+                        .transactionId(
+                                saved.getPaymentReference()
+                        )
+                        .paymentTime(
+                                LocalDateTime.now()
+                        )
+                        .build();
+
+
+        paymentEventProducer
+                .sendPaymentCompletedEvent(event);
 
         return paymentMapper.toResponse(
                 saved

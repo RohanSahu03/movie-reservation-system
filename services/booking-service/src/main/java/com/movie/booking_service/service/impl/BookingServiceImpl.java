@@ -347,6 +347,11 @@ public class BookingServiceImpl implements BookingService {
                                 )
                         );
 
+        log.info(
+                "Booking {} current status = {}",
+                booking.getId(),
+                booking.getBookingStatus()
+        );
 
         /*
          * Booking must be pending

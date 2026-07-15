@@ -1,5 +1,6 @@
 package com.movie.payment_service.producer;
 
+
 import com.movie.payment_service.event.PaymentCompletedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

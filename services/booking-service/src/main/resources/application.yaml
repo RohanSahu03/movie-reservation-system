@@ -2,6 +2,20 @@ spring:
   application:
     name: booking-service
 
+  kafka:
+    bootstrap-servers: localhost:9092
+
+    consumer:
+      group-id: booking-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.value.default.type: com.movie.booking_service.event.PaymentCompletedEvent
+        spring.json.use.type.headers: false
+
   data:
     redis:
       host: localhost

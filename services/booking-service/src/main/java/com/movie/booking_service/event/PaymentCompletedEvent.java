@@ -1,4 +1,4 @@
-package com.movie.payment_service.event;
+package com.movie.booking_service.event;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

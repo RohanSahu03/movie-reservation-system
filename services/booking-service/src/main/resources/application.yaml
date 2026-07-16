@@ -13,8 +13,6 @@ spring:
 
       properties:
         spring.json.trusted.packages: "*"
-        spring.json.value.default.type: com.movie.booking_service.event.PaymentCompletedEvent
-        spring.json.use.type.headers: false
 
   data:
     redis:

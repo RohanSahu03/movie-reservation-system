@@ -10,6 +10,7 @@ import com.movie.payment_service.entity.Payment;
 import com.movie.payment_service.enums.BookingStatus;
 import com.movie.payment_service.enums.PaymentStatus;
 import com.movie.payment_service.event.PaymentCompletedEvent;
+import com.movie.payment_service.event.PaymentFailedEvent;
 import com.movie.payment_service.mapper.PaymentMapper;
 import com.movie.payment_service.producer.PaymentEventProducer;
 import com.movie.payment_service.repository.PaymentRepository;
@@ -105,23 +106,6 @@ public class PaymentServiceImpl implements PaymentService {
                 saved.getId()
         );
 
-        PaymentCompletedEvent event =
-                PaymentCompletedEvent.builder()
-                        .paymentId(saved.getId())
-                        .bookingId(saved.getBookingId())
-                        .userId(saved.getUserId())
-                        .amount(saved.getAmount())
-                        .transactionId(
-                                saved.getPaymentReference()
-                        )
-                        .paymentTime(
-                                LocalDateTime.now()
-                        )
-                        .build();
-
-
-        paymentEventProducer
-                .sendPaymentCompletedEvent(event);
 
         return paymentMapper.toResponse(
                 saved
@@ -138,8 +122,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public PaymentResponse processPayment(
-            String paymentReference) {
+    public PaymentResponse processPayment(String paymentReference) {
 
         Payment payment =
                 paymentRepository
@@ -148,7 +131,6 @@ public class PaymentServiceImpl implements PaymentService {
                                 new ResourceNotFoundException(
                                         "Payment not found"
                                 ));
-
 
         /*
          * Only pending payments can be processed
@@ -160,12 +142,10 @@ public class PaymentServiceImpl implements PaymentService {
             );
         }
 
-
         /*
          * Mock payment gateway
          */
         boolean paymentSuccess = mockPaymentGateway();
-
 
         if (paymentSuccess) {
 
@@ -188,17 +168,39 @@ public class PaymentServiceImpl implements PaymentService {
             );
         }
 
-
         Payment saved =
                 paymentRepository.save(payment);
 
 
-        log.info(
-                "Payment processed reference={} status={}",
-                saved.getPaymentReference(),
-                saved.getPaymentStatus()
-        );
+        if (paymentSuccess) {
 
+            PaymentCompletedEvent event =
+                    PaymentCompletedEvent.builder()
+                            .paymentId(saved.getId())
+                            .bookingId(saved.getBookingId())
+                            .userId(saved.getUserId())
+                            .amount(saved.getAmount())
+                            .transactionId(saved.getTransactionId())
+                            .paymentTime(LocalDateTime.now())
+                            .build();
+
+            paymentEventProducer.sendPaymentCompletedEvent(event);
+
+        } else {
+
+            PaymentFailedEvent event =
+                    PaymentFailedEvent.builder()
+                            .paymentId(saved.getId())
+                            .bookingId(saved.getBookingId())
+                            .userId(saved.getUserId())
+                            .amount(saved.getAmount())
+                            .reason(saved.getFailureReason())
+                            .paymentTime(LocalDateTime.now())
+                            .build();
+
+            paymentEventProducer.sendPaymentFailedEvent(event);
+
+        }
 
         return paymentMapper.toResponse(saved);
     }

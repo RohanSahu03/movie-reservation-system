@@ -1,5 +1,6 @@
 package com.movie.booking_service.consumer;
 
+import com.movie.booking_service.event.PaymentFailedEvent;
 import com.movie.booking_service.service.BookingService;
 import com.movie.booking_service.event.PaymentCompletedEvent;
 import lombok.RequiredArgsConstructor;
@@ -15,15 +16,15 @@ public class PaymentEventConsumer {
     private final BookingService bookingService;
 
     @KafkaListener(
-            topics = "payment-events",
+            topics = "payment-completed",
             groupId = "booking-group"
     )
-    public void consumePaymentCompletedEvent(
+    public void consumeCompleted(
             PaymentCompletedEvent event
     ) {
 
         log.info(
-                "Received PaymentCompletedEvent : {}",
+                "Payment completed {}",
                 event
         );
 
@@ -31,9 +32,25 @@ public class PaymentEventConsumer {
                 event.getBookingId()
         );
 
+    }
+
+    @KafkaListener(
+            topics = "payment-failed",
+            groupId = "booking-group"
+    )
+    public void consumeFailed(
+            PaymentFailedEvent event
+    ) {
+
         log.info(
-                "Booking confirmed successfully for bookingId={}",
+                "Payment failed {}",
+                event
+        );
+
+        bookingService.cancelBooking(
                 event.getBookingId()
         );
+
     }
+
 }

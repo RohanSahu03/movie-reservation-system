@@ -1,8 +1,9 @@
 package com.movie.booking_service.consumer;
 
-import com.movie.booking_service.event.PaymentFailedEvent;
+
 import com.movie.booking_service.service.BookingService;
-import com.movie.booking_service.event.PaymentCompletedEvent;
+import com.movie.common.event.PaymentCompletedEvent;
+import com.movie.common.event.PaymentFailedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;

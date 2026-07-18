@@ -1,7 +1,8 @@
 package com.movie.notification_service.service;
 
-import com.movie.notification_service.event.PaymentCompletedEvent;
-import com.movie.notification_service.event.PaymentFailedEvent;
+import com.movie.common.event.PaymentCompletedEvent;
+import com.movie.common.event.PaymentFailedEvent;
+
 
 public interface NotificationService {
 

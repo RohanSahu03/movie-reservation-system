@@ -5,10 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cf802f82-3bf0-48f5-ad31-3aa00c60e887" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/services/payment-service/src/main/java/com/movie/payment_service/event/PaymentCompletedEvent.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/payment-service/src/main/java/com/movie/payment_service/event/PaymentFailedEvent.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/payment-service/src/main/java/com/movie/payment_service/producer/PaymentEventProducer.java" beforeDir="false" afterPath="$PROJECT_DIR$/services/payment-service/src/main/java/com/movie/payment_service/producer/PaymentEventProducer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/payment-service/src/main/java/com/movie/payment_service/service/impl/PaymentServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/services/payment-service/src/main/java/com/movie/payment_service/service/impl/PaymentServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/notification-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/services/notification-service/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/notification-service/src/main/java/com/movie/notification_service/consumer/NotificationConsumer.java" beforeDir="false" afterPath="$PROJECT_DIR$/services/notification-service/src/main/java/com/movie/notification_service/consumer/NotificationConsumer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/notification-service/src/main/java/com/movie/notification_service/event/PaymentCompletedEvent.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/notification-service/src/main/java/com/movie/notification_service/event/PaymentFailedEvent.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/notification-service/src/main/java/com/movie/notification_service/service/NotificationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/services/notification-service/src/main/java/com/movie/notification_service/service/NotificationService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/notification-service/src/main/java/com/movie/notification_service/service/impl/NotificationServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/services/notification-service/src/main/java/com/movie/notification_service/service/impl/NotificationServiceImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,7 +73,7 @@
     "Spring Boot.ShowServiceApplication.executor": "Run",
     "Spring Boot.TheaterServiceApplication.executor": "Run",
     "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "feature/payment-service",
+    "git-widget-placeholder": "feature/notification-service",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
     "run.configurations.included.in.services": "true",
@@ -101,18 +103,7 @@
       </map>
     </option>
   </component>
-  <component name="RunManager" selected="Spring Boot.NotificationServiceApplication">
-    <configuration default="true" type="JetRunConfigurationType">
-      <module name="payment-service" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
-      <module name="payment-service" />
-      <option name="filePath" />
-      <method v="2" />
-    </configuration>
+  <component name="RunManager" selected="Spring Boot.ApiGatewayApplication">
     <configuration name="ApiGatewayApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="api-gateway" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.movie.api_gateway.ApiGatewayApplication" />
@@ -252,6 +243,15 @@
           <url>file://$PROJECT_DIR$/services/booking-service/src/main/java/com/movie/booking_service/service/impl/BookingServiceImpl.java</url>
           <line>249</line>
           <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-method">
+          <url>file://$PROJECT_DIR$/services/payment-service/src/main/java/com/movie/payment_service/service/impl/PaymentServiceImpl.java</url>
+          <line>114</line>
+          <properties class="com.movie.payment_service.service.impl.PaymentServiceImpl" method="generatePaymentReference">
+            <option name="EMULATED" value="true" />
+            <option name="WATCH_EXIT" value="false" />
+          </properties>
+          <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

@@ -1,7 +1,7 @@
 package com.movie.payment_service.producer;
 
-import com.movie.payment_service.event.PaymentCompletedEvent;
-import com.movie.payment_service.event.PaymentFailedEvent;
+import com.movie.common.event.PaymentCompletedEvent;
+import com.movie.common.event.PaymentFailedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;

@@ -1,6 +1,8 @@
 package com.movie.payment_service.service.impl;
 
 import com.movie.common.dto.ApiResponse;
+import com.movie.common.event.PaymentCompletedEvent;
+import com.movie.common.event.PaymentFailedEvent;
 import com.movie.common.exception.ResourceNotFoundException;
 import com.movie.payment_service.client.BookingClient;
 import com.movie.payment_service.dto.external.BookingResponse;
@@ -9,8 +11,6 @@ import com.movie.payment_service.dto.response.PaymentResponse;
 import com.movie.payment_service.entity.Payment;
 import com.movie.payment_service.enums.BookingStatus;
 import com.movie.payment_service.enums.PaymentStatus;
-import com.movie.payment_service.event.PaymentCompletedEvent;
-import com.movie.payment_service.event.PaymentFailedEvent;
 import com.movie.payment_service.mapper.PaymentMapper;
 import com.movie.payment_service.producer.PaymentEventProducer;
 import com.movie.payment_service.repository.PaymentRepository;

@@ -259,22 +259,11 @@ public class BookingServiceImpl implements BookingService {
 
 
         /*
-         * Only active bookings can be cancelled
+         * Only pending bookings can be cancelled
          */
-        if(BookingStatus.CANCELLED.equals(
-                booking.getBookingStatus())) {
-
+        if (booking.getBookingStatus() != BookingStatus.PENDING) {
             throw new IllegalStateException(
-                    "Booking already cancelled"
-            );
-        }
-
-
-        if(BookingStatus.EXPIRED.equals(
-                booking.getBookingStatus())) {
-
-            throw new IllegalStateException(
-                    "Expired booking cannot be cancelled"
+                    "Only pending bookings can be cancelled"
             );
         }
 

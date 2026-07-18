@@ -41,7 +41,25 @@ public class PaymentEventProducer {
                 PAYMENT_FAILED_TOPIC,
                 event.getBookingId().toString(),
                 event
-        );
+        ).whenComplete((result, ex) -> {
+
+            if (ex == null) {
+
+                log.info(
+                        "PaymentFailedEvent sent successfully topic={} partition={} offset={}",
+                        result.getRecordMetadata().topic(),
+                        result.getRecordMetadata().partition(),
+                        result.getRecordMetadata().offset()
+                );
+
+            } else {
+
+                log.error(
+                        "Failed to publish PaymentFailedEvent",
+                        ex
+                );
+            }
+        });
     }
 
 }

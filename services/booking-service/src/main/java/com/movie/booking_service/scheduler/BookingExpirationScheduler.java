@@ -1,6 +1,7 @@
 package com.movie.booking_service.scheduler;
 
 import com.movie.booking_service.entity.Booking;
+import com.movie.booking_service.entity.BookedSeat;
 import com.movie.booking_service.enums.BookingStatus;
 import com.movie.booking_service.repository.BookingRepository;
 import com.movie.booking_service.service.redis.SeatLockService;
@@ -18,85 +19,73 @@ import java.util.List;
 @Slf4j
 public class BookingExpirationScheduler {
 
-
     private final BookingRepository bookingRepository;
-
     private final SeatLockService seatLockService;
 
-
-    @Scheduled(fixedDelay = 60000)
+    @Scheduled(fixedDelayString = "${booking.expiry.scheduler.delay:60000}")
     @Transactional
     public void expireBookings() {
 
-
-        log.info("Checking expired bookings...");
-
+        log.info("Checking for expired bookings...");
 
         List<Booking> expiredBookings =
-                bookingRepository
-                        .findByBookingStatusAndExpiresAtBefore(
-                                BookingStatus.PENDING,
-                                LocalDateTime.now()
-                        );
+                bookingRepository.findByBookingStatusAndExpiresAtBefore(
+                        BookingStatus.PENDING,
+                        LocalDateTime.now()
+                );
 
-
-        if(expiredBookings.isEmpty()) {
-
-            log.info("No expired bookings found");
-
+        if (expiredBookings.isEmpty()) {
+            log.info("No expired bookings found.");
             return;
         }
 
+        log.info("Found {} expired booking(s).", expiredBookings.size());
 
+        for (Booking booking : expiredBookings) {
 
-        for(Booking booking : expiredBookings) {
+            try {
 
+                log.info("Processing expired booking id={}", booking.getId());
 
-            log.info(
-                    "Expiring booking id={}",
-                    booking.getId()
-            );
+                /*
+                 * Release all locked seats
+                 */
+                for (BookedSeat bookedSeat : booking.getBookedSeats()) {
 
+                    seatLockService.unlockSeat(
+                            booking.getShowId(),
+                            bookedSeat.getSeatId()
+                    );
 
-            /*
-             * Release Redis seat locks
-             */
-            booking.getBookedSeats()
-                    .forEach(bookedSeat -> {
+                    log.info(
+                            "Released seat lock -> showId={}, seatId={}",
+                            booking.getShowId(),
+                            bookedSeat.getSeatId()
+                    );
+                }
 
+                /*
+                 * Mark booking as expired
+                 */
+                booking.setBookingStatus(BookingStatus.EXPIRED);
 
-                        seatLockService.unlockSeat(
-                                booking.getShowId(),
-                                bookedSeat.getSeatId()
-                        );
+                bookingRepository.save(booking);
 
+                log.info(
+                        "Booking expired successfully. bookingId={}",
+                        booking.getId()
+                );
 
-                        log.info(
-                                "Released seat lock showId={} seatId={}",
-                                booking.getShowId(),
-                                bookedSeat.getSeatId()
-                        );
+            } catch (Exception ex) {
 
-                    });
-
-
-
-            /*
-             * Update booking status
-             */
-            booking.setBookingStatus(
-                    BookingStatus.EXPIRED
-            );
-
-
-            bookingRepository.save(booking);
-
-
-
-            log.info(
-                    "Booking expired successfully id={}",
-                    booking.getId()
-            );
+                log.error(
+                        "Failed to expire booking id={}",
+                        booking.getId(),
+                        ex
+                );
+            }
         }
+
+        log.info("Booking expiration scheduler completed.");
     }
 }

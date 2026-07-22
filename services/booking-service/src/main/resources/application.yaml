@@ -55,6 +55,11 @@ feign:
 server:
   port: 8086
 
+booking:
+  expiry:
+    scheduler:
+      delay: 60000
+
 eureka:
   instance:
     prefer-ip-address: true

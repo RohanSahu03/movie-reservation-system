@@ -9,11 +9,14 @@ import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.converter.RecordMessageConverter;
 import org.springframework.util.backoff.FixedBackOff;
 
 @Configuration
 @Slf4j
 public class KafkaConsumerConfig {
+
+    private RecordMessageConverter messageConverter;
 
     @Bean
     public DefaultErrorHandler errorHandler(
@@ -46,13 +49,16 @@ public class KafkaConsumerConfig {
     public ConcurrentKafkaListenerContainerFactory<String, Object>
     kafkaListenerContainerFactory(
             ConsumerFactory<String, Object> consumerFactory,
-            DefaultErrorHandler errorHandler
+            DefaultErrorHandler errorHandler,
+            RecordMessageConverter messageConverter
     ) {
 
         ConcurrentKafkaListenerContainerFactory<String, Object> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
 
         factory.setConsumerFactory(consumerFactory);
+
+        factory.setRecordMessageConverter(messageConverter);
 
         factory.setCommonErrorHandler(errorHandler);
 

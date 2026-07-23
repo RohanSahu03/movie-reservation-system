@@ -22,9 +22,7 @@ public interface PaymentRepository
             Long userId
     );
 
-    List<Payment> findByBookingId(
-            Long bookingId
-    );
+    Optional<Payment> findByBookingId(Long bookingId);
 
     List<Payment> findByPaymentStatus(
             PaymentStatus paymentStatus

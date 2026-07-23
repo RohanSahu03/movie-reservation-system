@@ -11,12 +11,14 @@ import com.movie.payment_service.dto.response.PaymentResponse;
 import com.movie.payment_service.entity.Payment;
 import com.movie.payment_service.enums.BookingStatus;
 import com.movie.payment_service.enums.PaymentStatus;
+import com.movie.payment_service.exception.PaymentAlreadyProcessingException;
 import com.movie.payment_service.mapper.PaymentMapper;
 import com.movie.payment_service.producer.PaymentEventProducer;
 import com.movie.payment_service.repository.PaymentRepository;
 import com.movie.payment_service.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -122,87 +124,101 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    @Transactional
     public PaymentResponse processPayment(String paymentReference) {
 
-        Payment payment =
-                paymentRepository
-                        .findByPaymentReference(paymentReference)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Payment not found"
-                                ));
+        try {
+            Payment payment =
+                    paymentRepository
+                            .findByPaymentReference(paymentReference)
+                            .orElseThrow(() ->
+                                    new ResourceNotFoundException(
+                                            "Payment not found"
+                                    ));
 
-        /*
-         * Only pending payments can be processed
-         */
-        if (payment.getPaymentStatus() != PaymentStatus.PENDING) {
+            /*
+             * Idempotency check
+             * If already processed, simply return the existing response.
+             */
+            if (payment.getPaymentStatus() != PaymentStatus.PENDING) {
 
-            throw new IllegalStateException(
-                    "Payment already processed"
+                log.info(
+                        "Payment {} already processed with status {}",
+                        paymentReference,
+                        payment.getPaymentStatus()
+                );
+
+                return paymentMapper.toResponse(payment);
+            }
+
+            /*
+             * Mock payment gateway
+             */
+            boolean paymentSuccess = mockPaymentGateway();
+
+            if (paymentSuccess) {
+
+                payment.setPaymentStatus(
+                        PaymentStatus.SUCCESS
+                );
+
+                payment.setTransactionId(
+                        generateTransactionId()
+                );
+
+            } else {
+
+                payment.setPaymentStatus(
+                        PaymentStatus.FAILED
+                );
+
+                payment.setFailureReason(
+                        "Payment declined by gateway"
+                );
+            }
+
+            Payment saved =
+                    paymentRepository.save(payment);
+
+            /*
+             * Publish event only once
+             */
+            if (paymentSuccess) {
+
+                PaymentCompletedEvent event =
+                        PaymentCompletedEvent.builder()
+                                .paymentId(saved.getId())
+                                .bookingId(saved.getBookingId())
+                                .userId(saved.getUserId())
+                                .amount(saved.getAmount())
+                                .transactionId(saved.getTransactionId())
+                                .paymentTime(LocalDateTime.now())
+                                .build();
+
+                paymentEventProducer.sendPaymentCompletedEvent(event);
+
+            } else {
+
+                PaymentFailedEvent event =
+                        PaymentFailedEvent.builder()
+                                .paymentId(saved.getId())
+                                .bookingId(saved.getBookingId())
+                                .userId(saved.getUserId())
+                                .amount(saved.getAmount())
+                                .reason(saved.getFailureReason())
+                                .paymentTime(LocalDateTime.now())
+                                .build();
+
+                paymentEventProducer.sendPaymentFailedEvent(event);
+            }
+
+            return paymentMapper.toResponse(saved);
+        }catch (ObjectOptimisticLockingFailureException ex) {
+
+            throw new PaymentAlreadyProcessingException(
+                    "Payment is already being processed"
             );
         }
-
-        /*
-         * Mock payment gateway
-         */
-        boolean paymentSuccess = mockPaymentGateway();
-
-        if (paymentSuccess) {
-
-            payment.setPaymentStatus(
-                    PaymentStatus.SUCCESS
-            );
-
-            payment.setTransactionId(
-                    generateTransactionId()
-            );
-
-        } else {
-
-            payment.setPaymentStatus(
-                    PaymentStatus.FAILED
-            );
-
-            payment.setFailureReason(
-                    "Payment declined by gateway"
-            );
-        }
-
-        Payment saved =
-                paymentRepository.save(payment);
-
-
-        if (paymentSuccess) {
-
-            PaymentCompletedEvent event =
-                    PaymentCompletedEvent.builder()
-                            .paymentId(saved.getId())
-                            .bookingId(saved.getBookingId())
-                            .userId(saved.getUserId())
-                            .amount(saved.getAmount())
-                            .transactionId(saved.getTransactionId())
-                            .paymentTime(LocalDateTime.now())
-                            .build();
-
-            paymentEventProducer.sendPaymentCompletedEvent(event);
-
-        } else {
-
-            PaymentFailedEvent event =
-                    PaymentFailedEvent.builder()
-                            .paymentId(saved.getId())
-                            .bookingId(saved.getBookingId())
-                            .userId(saved.getUserId())
-                            .amount(saved.getAmount())
-                            .reason(saved.getFailureReason())
-                            .paymentTime(LocalDateTime.now())
-                            .build();
-
-            paymentEventProducer.sendPaymentFailedEvent(event);
-
-        }
-
-        return paymentMapper.toResponse(saved);
     }
 
     @Override

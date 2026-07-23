@@ -20,7 +20,10 @@ public class Payment extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Version
+    private Long version;
+
+    @Column(unique = true, nullable = false)
     private Long bookingId;
 
     @Column(nullable = false)

@@ -33,7 +33,7 @@ public class PaymentEventProducer {
         );
 
 
-        kafkaTemplate.send(
+        return kafkaTemplate.send(
                 PAYMENT_COMPLETED_TOPIC,
                 event.getBookingId().toString(),
                 event
@@ -45,7 +45,7 @@ public class PaymentEventProducer {
 
         log.info("Publishing PaymentFailedEvent {}", event);
 
-        kafkaTemplate.send(
+        return kafkaTemplate.send(
                 PAYMENT_FAILED_TOPIC,
                 event.getBookingId().toString(),
                 event

@@ -15,6 +15,7 @@ import com.movie.payment_service.exception.PaymentAlreadyProcessingException;
 import com.movie.payment_service.mapper.PaymentMapper;
 import com.movie.payment_service.producer.PaymentEventProducer;
 import com.movie.payment_service.repository.PaymentRepository;
+import com.movie.payment_service.service.OutboxService;
 import com.movie.payment_service.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +39,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     private final BookingClient bookingClient;
 
-    private final PaymentEventProducer paymentEventProducer;
+    private final OutboxService outboxService;
 
     @Override
     public PaymentResponse createPayment(
@@ -195,7 +196,12 @@ public class PaymentServiceImpl implements PaymentService {
                                 .paymentTime(LocalDateTime.now())
                                 .build();
 
-                paymentEventProducer.sendPaymentCompletedEvent(event);
+                outboxService.saveEvent(
+                        "PAYMENT",
+                        saved.getId(),
+                        "PaymentCompletedEvent",
+                        event
+                );
 
             } else {
 
@@ -209,7 +215,12 @@ public class PaymentServiceImpl implements PaymentService {
                                 .paymentTime(LocalDateTime.now())
                                 .build();
 
-                paymentEventProducer.sendPaymentFailedEvent(event);
+                outboxService.saveEvent(
+                        "PAYMENT",
+                        saved.getId(),
+                        "PaymentFailedEvent",
+                        event
+                );
             }
 
             return paymentMapper.toResponse(saved);

@@ -299,6 +299,13 @@ public class BookingServiceImpl implements BookingService {
                 BookingStatus.CANCELLED
         );
 
+        /*
+         * Update payment status
+         */
+        booking.setPaymentStatus(
+                PaymentStatus.FAILED
+        );
+
 
         bookingRepository.save(
                 booking
@@ -345,12 +352,23 @@ public class BookingServiceImpl implements BookingService {
         /*
          * Booking must be pending
          */
-        if(!BookingStatus.PENDING.equals(
+        if(BookingStatus.CONFIRMED.equals(
                 booking.getBookingStatus())) {
 
+            log.info(
+                    "Booking already confirmed {}",
+                    bookingId
+            );
+
+            return bookingMapper.toResponse(booking);
+        }
+
+
+        if(BookingStatus.CANCELLED.equals(
+                booking.getBookingStatus())) {
 
             throw new IllegalStateException(
-                    "Only pending booking can be confirmed"
+                    "Cancelled booking cannot be confirmed"
             );
         }
 
@@ -367,6 +385,16 @@ public class BookingServiceImpl implements BookingService {
         booking.setPaymentStatus(
                 PaymentStatus.SUCCESS
         );
+
+        booking.getBookedSeats()
+                .forEach(bookedSeat -> {
+
+                    seatLockService.unlockSeat(
+                            booking.getShowId(),
+                            bookedSeat.getSeatId()
+                    );
+
+                });
 
 
 

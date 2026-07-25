@@ -5,7 +5,10 @@ import com.movie.common.event.PaymentFailedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -20,10 +23,15 @@ public class PaymentEventProducer {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    public void sendPaymentCompletedEvent(
+    public CompletableFuture<SendResult<String, Object>> sendPaymentCompletedEvent(
             PaymentCompletedEvent event) {
 
-        log.info("Publishing PaymentCompletedEvent {}", event);
+
+        log.info(
+                "Publishing PaymentCompletedEvent {}",
+                event
+        );
+
 
         kafkaTemplate.send(
                 PAYMENT_COMPLETED_TOPIC,
@@ -32,7 +40,7 @@ public class PaymentEventProducer {
         );
     }
 
-    public void sendPaymentFailedEvent(
+    public CompletableFuture<SendResult<String, Object>> sendPaymentFailedEvent(
             PaymentFailedEvent event) {
 
         log.info("Publishing PaymentFailedEvent {}", event);
@@ -41,25 +49,7 @@ public class PaymentEventProducer {
                 PAYMENT_FAILED_TOPIC,
                 event.getBookingId().toString(),
                 event
-        ).whenComplete((result, ex) -> {
-
-            if (ex == null) {
-
-                log.info(
-                        "PaymentFailedEvent sent successfully topic={} partition={} offset={}",
-                        result.getRecordMetadata().topic(),
-                        result.getRecordMetadata().partition(),
-                        result.getRecordMetadata().offset()
-                );
-
-            } else {
-
-                log.error(
-                        "Failed to publish PaymentFailedEvent",
-                        ex
-                );
-            }
-        });
+        );
     }
 
 }

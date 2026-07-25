@@ -6,8 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="cf802f82-3bf0-48f5-ad31-3aa00c60e887" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/payment-service/src/main/java/com/movie/payment_service/entity/Payment.java" beforeDir="false" afterPath="$PROJECT_DIR$/services/payment-service/src/main/java/com/movie/payment_service/entity/Payment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/payment-service/src/main/java/com/movie/payment_service/repository/PaymentRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/services/payment-service/src/main/java/com/movie/payment_service/repository/PaymentRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/booking-service/src/main/java/com/movie/booking_service/service/impl/BookingServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/services/booking-service/src/main/java/com/movie/booking_service/service/impl/BookingServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/payment-service/src/main/java/com/movie/payment_service/PaymentServiceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/services/payment-service/src/main/java/com/movie/payment_service/PaymentServiceApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/payment-service/src/main/java/com/movie/payment_service/producer/PaymentEventProducer.java" beforeDir="false" afterPath="$PROJECT_DIR$/services/payment-service/src/main/java/com/movie/payment_service/producer/PaymentEventProducer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/services/payment-service/src/main/java/com/movie/payment_service/service/impl/PaymentServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/services/payment-service/src/main/java/com/movie/payment_service/service/impl/PaymentServiceImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -258,7 +259,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-method">
           <url>file://$PROJECT_DIR$/services/payment-service/src/main/java/com/movie/payment_service/service/impl/PaymentServiceImpl.java</url>
-          <line>114</line>
+          <line>117</line>
           <properties class="com.movie.payment_service.service.impl.PaymentServiceImpl" method="generatePaymentReference">
             <option name="EMULATED" value="true" />
             <option name="WATCH_EXIT" value="false" />

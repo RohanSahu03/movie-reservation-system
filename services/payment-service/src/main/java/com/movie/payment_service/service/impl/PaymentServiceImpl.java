@@ -1,0 +1,276 @@
+package com.movie.payment_service.service.impl;
+
+import com.movie.common.dto.ApiResponse;
+import com.movie.common.event.PaymentCompletedEvent;
+import com.movie.common.event.PaymentFailedEvent;
+import com.movie.common.exception.ResourceNotFoundException;
+import com.movie.payment_service.client.BookingClient;
+import com.movie.payment_service.dto.external.BookingResponse;
+import com.movie.payment_service.dto.request.CreatePaymentRequest;
+import com.movie.payment_service.dto.response.PaymentResponse;
+import com.movie.payment_service.entity.Payment;
+import com.movie.payment_service.enums.BookingStatus;
+import com.movie.payment_service.enums.PaymentStatus;
+import com.movie.payment_service.exception.PaymentAlreadyProcessingException;
+import com.movie.payment_service.mapper.PaymentMapper;
+import com.movie.payment_service.producer.PaymentEventProducer;
+import com.movie.payment_service.repository.PaymentRepository;
+import com.movie.payment_service.service.OutboxService;
+import com.movie.payment_service.service.PaymentService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+@Transactional
+public class PaymentServiceImpl implements PaymentService {
+
+    private final PaymentRepository paymentRepository;
+
+    private final PaymentMapper paymentMapper;
+
+    private final BookingClient bookingClient;
+
+    private final OutboxService outboxService;
+
+    @Override
+    public PaymentResponse createPayment(
+            Long userId,
+            CreatePaymentRequest request) {
+
+        /*
+         * Fetch Booking
+         */
+        ApiResponse<BookingResponse> response =
+                bookingClient.getBookingById(
+                        request.getBookingId()
+                );
+
+        BookingResponse booking =
+                response.data();
+
+        if (booking == null || !Boolean.TRUE.equals(booking.getActive())) {
+
+            throw new ResourceNotFoundException(
+                    "Booking not found"
+            );
+        }
+
+        /*
+         * Booking should be pending
+         */
+        if (booking.getBookingStatus() != BookingStatus.PENDING) {
+
+            throw new IllegalStateException(
+                    "Only pending booking can be paid"
+            );
+        }
+
+        /*
+         * Create Payment
+         */
+        Payment payment =
+                Payment.builder()
+                        .bookingId(
+                                booking.getId()
+                        )
+                        .userId(
+                                booking.getUserId()
+                        )
+                        .amount(
+                                booking.getTotalAmount()
+                        )
+                        .paymentMethod(
+                                request.getPaymentMethod()
+                        )
+                        .paymentStatus(
+                                PaymentStatus.PENDING
+                        )
+                        .paymentReference(
+                                generatePaymentReference()
+                        )
+                        .build();
+
+        Payment saved =
+                paymentRepository.save(
+                        payment
+                );
+
+        log.info(
+                "Payment created successfully id={}",
+                saved.getId()
+        );
+
+
+        return paymentMapper.toResponse(
+                saved
+        );
+    }
+
+    private String generatePaymentReference() {
+
+        return "PAY-"
+                + UUID.randomUUID()
+                .toString()
+                .substring(0, 8)
+                .toUpperCase();
+    }
+
+    @Override
+    @Transactional
+    public PaymentResponse processPayment(String paymentReference) {
+
+        try {
+            Payment payment =
+                    paymentRepository
+                            .findByPaymentReference(paymentReference)
+                            .orElseThrow(() ->
+                                    new ResourceNotFoundException(
+                                            "Payment not found"
+                                    ));
+
+            /*
+             * Idempotency check
+             * If already processed, simply return the existing response.
+             */
+            if (payment.getPaymentStatus() != PaymentStatus.PENDING) {
+
+                log.info(
+                        "Payment {} already processed with status {}",
+                        paymentReference,
+                        payment.getPaymentStatus()
+                );
+
+                return paymentMapper.toResponse(payment);
+            }
+
+            /*
+             * Mock payment gateway
+             */
+            boolean paymentSuccess = mockPaymentGateway();
+
+            if (paymentSuccess) {
+
+                payment.setPaymentStatus(
+                        PaymentStatus.SUCCESS
+                );
+
+                payment.setTransactionId(
+                        generateTransactionId()
+                );
+
+            } else {
+
+                payment.setPaymentStatus(
+                        PaymentStatus.FAILED
+                );
+
+                payment.setFailureReason(
+                        "Payment declined by gateway"
+                );
+            }
+
+            Payment saved =
+                    paymentRepository.save(payment);
+
+            /*
+             * Publish event only once
+             */
+            if (paymentSuccess) {
+
+                PaymentCompletedEvent event =
+                        PaymentCompletedEvent.builder()
+                                .paymentId(saved.getId())
+                                .bookingId(saved.getBookingId())
+                                .userId(saved.getUserId())
+                                .amount(saved.getAmount())
+                                .transactionId(saved.getTransactionId())
+                                .paymentTime(LocalDateTime.now())
+                                .build();
+
+                outboxService.saveEvent(
+                        "PAYMENT",
+                        saved.getId(),
+                        "PaymentCompletedEvent",
+                        event
+                );
+
+            } else {
+
+                PaymentFailedEvent event =
+                        PaymentFailedEvent.builder()
+                                .paymentId(saved.getId())
+                                .bookingId(saved.getBookingId())
+                                .userId(saved.getUserId())
+                                .amount(saved.getAmount())
+                                .reason(saved.getFailureReason())
+                                .paymentTime(LocalDateTime.now())
+                                .build();
+
+                outboxService.saveEvent(
+                        "PAYMENT",
+                        saved.getId(),
+                        "PaymentFailedEvent",
+                        event
+                );
+            }
+
+            return paymentMapper.toResponse(saved);
+        }catch (ObjectOptimisticLockingFailureException ex) {
+
+            throw new PaymentAlreadyProcessingException(
+                    "Payment is already being processed"
+            );
+        }
+    }
+
+    @Override
+    public PaymentResponse getPaymentById(
+            Long paymentId) {
+
+        Payment payment =
+                paymentRepository.findById(paymentId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Payment not found"
+                                ));
+
+        return paymentMapper.toResponse(payment);
+    }
+
+
+    @Override
+    public List<PaymentResponse> getUserPayments(
+            Long userId) {
+
+        return paymentRepository
+                .findByUserId(userId)
+                .stream()
+                .map(paymentMapper::toResponse)
+                .toList();
+    }
+
+
+    private String generateTransactionId() {
+
+        return "TXN-"
+                + UUID.randomUUID()
+                .toString()
+                .replace("-", "")
+                .substring(0, 12)
+                .toUpperCase();
+    }
+
+    private boolean mockPaymentGateway() {
+
+        return Math.random() < 0.8;
+    }
+}
